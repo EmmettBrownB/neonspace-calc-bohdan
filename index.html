@@ -1265,11 +1265,12 @@ let MILLING_PRICE = 25; // грн за м/п (редаговано корист�
 
 // Тарифи фрезерування "Аутсорс" — за найдовшою стороною виробу (без припуску), мм
 let OUTSOURCE_MILLING_TIERS = [
-  {max:500, price:300},
-  {max:1000, price:500},
-  {max:Infinity, price:700}, // до 1500 мм (і більше — з попередженням перевірити ціну)
+  {max:500, price:300},   // 0–500 мм
+  {max:1000, price:500},  // 500–1000 мм
+  {max:1500, price:700},  // 1000–1500 мм
+  {max:Infinity, price:700}, // 1500–2000 мм (понад 2000 — з попередженням перевірити ціну)
 ];
-const OUTSOURCE_MILLING_MAX_SIDE_MM = 1500; // понад цей розмір тарифна сітка не визначена
+const OUTSOURCE_MILLING_MAX_SIDE_MM = 2000; // понад цей розмір тарифна сітка не визначена
 function millingLongestSideMm(widthCm, heightCm){
   return Math.max(widthCm||0, heightCm||0) * 10;
 }
@@ -3480,7 +3481,7 @@ function applyPriceSnapshotData(snap){
 
   // Старі збережені тарифи були за площею (межі 0.5 / 1.1 м²) — їх не підвантажуємо,
   // бо тепер межі в міліметрах за найдовшою стороною.
-  const tiersAreMm = snap.OUTSOURCE_MILLING_TIERS && snap.OUTSOURCE_MILLING_TIERS.every(t => t.max==null || t.max >= 100);
+  const tiersAreMm = snap.OUTSOURCE_MILLING_TIERS && snap.OUTSOURCE_MILLING_TIERS.length === OUTSOURCE_MILLING_TIERS.length && snap.OUTSOURCE_MILLING_TIERS.every(t => t.max==null || t.max >= 100);
   if(snap.OUTSOURCE_MILLING_TIERS && tiersAreMm){
     OUTSOURCE_MILLING_TIERS.length = 0;
     snap.OUTSOURCE_MILLING_TIERS.forEach(t=> OUTSOURCE_MILLING_TIERS.push({max: (t.max==null? Infinity : t.max), price:t.price}));
